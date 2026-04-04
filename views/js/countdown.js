@@ -21,8 +21,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (distance < 0) {
       clearInterval(interval);
-        location.reload(); // PHP time management
-        return;
+      location.reload(); // PHP time management
+      return;
     }
 
     var days = Math.floor(distance / (1000 * 60 * 60 * 24));
