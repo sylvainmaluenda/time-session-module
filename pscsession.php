@@ -60,10 +60,9 @@ class pscsession extends Module
         $employee = $this->context->employee;
 
         // allow superadmin
-        if ((int)$employee->id_profile === 1) {
+        if ($employee && (int)$employee->id_profile === 1) {
             return;
         }
-
         // back management
         if ($this->context->employee) {
             // if session expired
