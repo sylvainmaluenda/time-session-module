@@ -1,12 +1,18 @@
 
 <?php
 if (!defined('_PS_VERSION_')) {
-    exit;
+    exit();
 }
+
+require_once __DIR__ . '/core/ServiceContainer.php';
+require_once __DIR__ . '/infrastructure/ViteAssetManager.php';
+
+use Pscsession\Core\ServiceContainer;
+use Pscsession\Infrastructure\ViteAssetManager;
 
 class pscsession extends Module
 {
-    const INIT_DATE = "2026-04-10T23:59:59";
+    const INIT_DATE = '2026-04-10T23:59:59';
 
     public function __construct()
     {
@@ -19,15 +25,15 @@ class pscsession extends Module
 
         $this->displayName = 'PSC Session';
         $this->description = 'Manage session duration for pop-up demo shops';
-        
     }
 
     public function install()
     {
-        return parent::install() 
-        && $this->registerHook('displayBackOfficeHeader') 
-        && $this->registerHook('actionDispatcherBefore')
-        && Configuration::updateValue('PSC_SESSION_END_DATE', $this::INIT_DATE); // Valeur par défaut
+        return parent::install() &&
+            $this->registerHook('displayBackOfficeHeader') &&
+            $this->registerHook('displayBackOfficeTop') &&
+            $this->registerHook('actionDispatcherBefore') &&
+            Configuration::updateValue('PSC_SESSION_END_DATE', $this::INIT_DATE); // Valeur par défaut
     }
 
     public function getContent()
@@ -49,7 +55,6 @@ class pscsession extends Module
 
         // Afficher le formulaire de configuration
         return $this->renderDateForm();
-
     }
 
     public function hookActionDispatcherBefore($params)
@@ -60,7 +65,7 @@ class pscsession extends Module
         $employee = $this->context->employee;
 
         // allow superadmin
-        if ($employee && (int)$employee->id_profile === 1) {
+        if ($employee && (int) $employee->id_profile === 1) {
             return;
         }
         // back management
@@ -68,39 +73,38 @@ class pscsession extends Module
             // if session expired
             if ($now > $endDate && !Tools::getValue('expired')) {
                 if ($employee && $employee->isLoggedBack()) {
-
                     $employee->logout();
 
                     Tools::redirect(
-                        $this->context->link->getModuleLink('pscsession', 'expired', ['expired' => true])
+                        $this->context->link->getModuleLink('pscsession', 'sessionexpired', ['expired' => true]),
                     );
                 }
             }
 
-        // front management 
+            // front management
         } else {
             if ($now > $endDate && !Tools::getValue('expired')) {
                 Tools::redirect(
-                    $this->context->link->getModuleLink('pscsession', 'expired', ['expired' => true])
+                    $this->context->link->getModuleLink('pscsession', 'sessionexpired', ['expired' => true]),
                 );
             }
         }
 
         $this->context->smarty->assign([
             'module_path' => $this->_path,
-            'admin_path' => 'dashboard'
+            'admin_path' => 'dashboard',
         ]);
     }
 
     public function hookDisplayBackOfficeHeader()
     {
-        $now = date('Y-m-d H:i:s');
-        $endDate = Configuration::get('PSC_SESSION_END_DATE'); // Use configuration value
+        $vite = $this->container()->get(ViteAssetManager::class);
+        return $vite->render('src/sessionWidget/main.tsx');
+    }
 
-        if ($this->context->employee->id_profile === 1 && $now > $endDate) {
-            $this->context->controller->addJS($this->_path . 'views/js/dumpbar.js');
-            return;
-        }
+    public function hookDisplayBackOfficeTop()
+    {
+        $endDate = Configuration::get('PSC_SESSION_END_DATE');
 
         // Define an init date if it do not exists
         if (!$endDate) {
@@ -114,28 +118,46 @@ class pscsession extends Module
             return;
         }
 
-        Media::addJsDef([
-            'end_date' => date('c', $timestamp),
+        $this->context->smarty->assign([
+            'module_dir' => __PS_BASE_URI__ . 'modules/' . $this->name . '/',
+            'reactProps' => [
+                'endDate' => $endDate,
+            ],
         ]);
 
-        $this->context->controller->addJS($this->_path . 'views/js/countdown.js');
+        // Vite Entry without tpl
+        $props = htmlspecialchars(
+            json_encode([
+                'endDate' => $endDate,
+            ]),
+            ENT_QUOTES,
+            'UTF-8',
+        );
+
+        return <<<HTML
+        <div id="session-widget-root" data-props="{$props}"></div>
+        HTML;
+
+        // Vite Entry with tpl
+        /*
+        return $this->display(__FILE__, 'views/templates/back/SessionWidget.tpl');
+        */
     }
 
     public function renderDateForm()
     {
         $helper = new HelperForm();
-        
+
         $endDate = Configuration::get('PSC_SESSION_END_DATE');
         if (!$endDate) {
             $endDate = $this::INIT_DATE; // Default value if no date is defined
         }
-        
+
         // Form initialisation
         $helper->show_form = true;
         $helper->module = $this;
         $helper->submit_action = 'submitform';
-        $helper->currentIndex = AdminController::$currentIndex
-             . '&configure=' . $this->name;
+        $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
         $helper->token = Tools::getAdminTokenLite('AdminModules');
         $helper->tpl_vars = [
             'fields_value' => [
@@ -158,7 +180,7 @@ class pscsession extends Module
                         'size' => 20,
                         'required' => true,
                         'desc' => $this->l('Select the end date for the session.'),
-                        'value' => $endDate,  // Field initialisation
+                        'value' => $endDate, // Field initialisation
                     ],
                 ],
                 'submit' => [
@@ -170,4 +192,31 @@ class pscsession extends Module
         // Generate and return form
         return $helper->generateForm([$fieldsForm]);
     }
+
+    private ?ServiceContainer $container = null;
+
+    public function container(): ServiceContainer
+    {
+        if ($this->container === null) {
+            $this->container = $this->buildContainer();
+        }
+
+        return $this->container;
+    }
+
+    private function buildContainer(): ServiceContainer
+    {
+        $container = new ServiceContainer();
+
+        $container->set(
+            ViteAssetManager::class,
+            fn(ServiceContainer $container) => new ViteAssetManager(
+                _PS_MODULE_DIR_ . $this->name,
+                __PS_BASE_URI__ . 'modules/' . $this->name . '/',
+            ),
+        );
+
+        return $container;
+    }
 }
+

@@ -1,0 +1,18 @@
+{
+  "src/sessionExpired/main.tsx": {
+    "file": "sessionExpired-C4At-sXP.js",
+    "name": "sessionExpired",
+    "src": "src/sessionExpired/main.tsx",
+    "isEntry": true
+  },
+  "src/sessionWidget/main.tsx": {
+    "file": "sessionWidget-BvRk9kiK.js",
+    "name": "sessionWidget",
+    "src": "src/sessionWidget/main.tsx",
+    "isEntry": true
+  },
+  "style.css": {
+    "file": "assets/style-CgKstikQ.css",
+    "src": "style.css"
+  }
+}
