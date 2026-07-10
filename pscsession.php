@@ -4,15 +4,27 @@ if (!defined('_PS_VERSION_')) {
     exit();
 }
 
-require_once __DIR__ . '/core/ServiceContainer.php';
-require_once __DIR__ . '/infrastructure/ViteAssetManager.php';
+require_once __DIR__ . '/bootstrap.php';
 
-use Pscsession\Core\ServiceContainer;
-use Pscsession\Infrastructure\ViteAssetManager;
+use Pscsession\core\ServiceContainer;
+use Pscsession\core\ContainerFactory;
+use Pscsession\infrastructure\ViteAssetManager;
+use Pscsession\infrastructure\ReviewMailer;
 
 class pscsession extends Module
 {
     const INIT_DATE = '2026-04-10T23:59:59';
+
+    private ?ServiceContainer $container = null;
+
+    public function container(): ServiceContainer
+    {
+        return $this->container ??= ContainerFactory::build(
+            _PS_MODULE_DIR_ . $this->name,
+            __PS_BASE_URI__ . 'modules/' . $this->name . '/',
+            $_ENV['VITE_DEV_SERVER'],
+        );
+    }
 
     public function __construct()
     {
@@ -191,32 +203,6 @@ class pscsession extends Module
 
         // Generate and return form
         return $helper->generateForm([$fieldsForm]);
-    }
-
-    private ?ServiceContainer $container = null;
-
-    public function container(): ServiceContainer
-    {
-        if ($this->container === null) {
-            $this->container = $this->buildContainer();
-        }
-
-        return $this->container;
-    }
-
-    private function buildContainer(): ServiceContainer
-    {
-        $container = new ServiceContainer();
-
-        $container->set(
-            ViteAssetManager::class,
-            fn(ServiceContainer $container) => new ViteAssetManager(
-                _PS_MODULE_DIR_ . $this->name,
-                __PS_BASE_URI__ . 'modules/' . $this->name . '/',
-            ),
-        );
-
-        return $container;
     }
 }
 

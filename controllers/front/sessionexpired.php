@@ -1,8 +1,8 @@
 <?php
 
-require_once _PS_MODULE_DIR_ . 'pscsession/infrastructure/ViteAssetManager.php';
+require_once _PS_MODULE_DIR_ . 'pscsession/bootstrap.php';
 
-use Pscsession\Infrastructure\ViteAssetManager;
+use Pscsession\infrastructure\ViteAssetManager;
 
 class PscsessionSessionexpiredModuleFrontController extends ModuleFrontController
 {
@@ -10,31 +10,28 @@ class PscsessionSessionexpiredModuleFrontController extends ModuleFrontControlle
     {
         parent::init();
 
-        // security : if someone arrives here logged in as BO
         $employee = Context::getContext()->employee;
 
         if ($employee) {
             $employee->logout();
         }
-    }
-
-    public function initContent()
-    {
-        parent::initContent();
-
-        $this->context->smarty->assign([
-            'module_dir' => __PS_BASE_URI__ . 'modules/' . $this->module->name . '/',
-            'reactProps' => [
-                'loginUrl' => $this->context->link->getAdminLink('AdminDashboard'),
-            ],
-        ]);
 
         $vite = $this->module->container()->get(ViteAssetManager::class);
 
-        $this->context->smarty->assign([
-            'vite' => $vite->render('src/sessionExpired/main.tsx'),
-        ]);
+        $props = htmlspecialchars(
+            json_encode([
+                'reviewUrl' => $this->context->link->getModuleLink('pscsession', 'review'),
+            ]),
+            ENT_QUOTES,
+            'UTF-8',
+        );
 
-        $this->setTemplate('module:pscsession/views/templates/front/SessionExpired.tpl');
+        echo sprintf(
+            '%s<div id="session-expired-root" data-props="%s"></div>',
+            $vite->render('src/sessionExpired/main.tsx'),
+            $props,
+        );
+
+        exit();
     }
 }

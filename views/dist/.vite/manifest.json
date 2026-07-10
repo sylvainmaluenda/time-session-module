@@ -1,18 +1,55 @@
 {
+  "_jsx-runtime-C2aWLhOF.js": {
+    "file": "chunks/jsx-runtime-C2aWLhOF.js",
+    "name": "jsx-runtime",
+    "assets": [
+      "assets/geist-cyrillic-ext-wght-normal-DjL33-gN.woff2",
+      "assets/geist-cyrillic-wght-normal-BEAKL7Jp.woff2",
+      "assets/geist-vietnamese-wght-normal-6IgcOCM7.woff2",
+      "assets/geist-latin-ext-wght-normal-DC-KSUi6.woff2",
+      "assets/geist-latin-wght-normal-BgDaEnEv.woff2"
+    ]
+  },
+  "node_modules/@fontsource-variable/geist/files/geist-cyrillic-ext-wght-normal.woff2": {
+    "file": "assets/geist-cyrillic-ext-wght-normal-DjL33-gN.woff2",
+    "src": "node_modules/@fontsource-variable/geist/files/geist-cyrillic-ext-wght-normal.woff2"
+  },
+  "node_modules/@fontsource-variable/geist/files/geist-cyrillic-wght-normal.woff2": {
+    "file": "assets/geist-cyrillic-wght-normal-BEAKL7Jp.woff2",
+    "src": "node_modules/@fontsource-variable/geist/files/geist-cyrillic-wght-normal.woff2"
+  },
+  "node_modules/@fontsource-variable/geist/files/geist-latin-ext-wght-normal.woff2": {
+    "file": "assets/geist-latin-ext-wght-normal-DC-KSUi6.woff2",
+    "src": "node_modules/@fontsource-variable/geist/files/geist-latin-ext-wght-normal.woff2"
+  },
+  "node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2": {
+    "file": "assets/geist-latin-wght-normal-BgDaEnEv.woff2",
+    "src": "node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2"
+  },
+  "node_modules/@fontsource-variable/geist/files/geist-vietnamese-wght-normal.woff2": {
+    "file": "assets/geist-vietnamese-wght-normal-6IgcOCM7.woff2",
+    "src": "node_modules/@fontsource-variable/geist/files/geist-vietnamese-wght-normal.woff2"
+  },
   "src/sessionExpired/main.tsx": {
-    "file": "sessionExpired-C4At-sXP.js",
+    "file": "sessionExpired-BEhy2u_1.js",
     "name": "sessionExpired",
     "src": "src/sessionExpired/main.tsx",
-    "isEntry": true
+    "isEntry": true,
+    "imports": [
+      "_jsx-runtime-C2aWLhOF.js"
+    ]
   },
   "src/sessionWidget/main.tsx": {
-    "file": "sessionWidget-BvRk9kiK.js",
+    "file": "sessionWidget-BQp-wL_S.js",
     "name": "sessionWidget",
     "src": "src/sessionWidget/main.tsx",
-    "isEntry": true
+    "isEntry": true,
+    "imports": [
+      "_jsx-runtime-C2aWLhOF.js"
+    ]
   },
   "style.css": {
-    "file": "assets/style-CgKstikQ.css",
+    "file": "assets/style-CpWZYsU9.css",
     "src": "style.css"
   }
 }

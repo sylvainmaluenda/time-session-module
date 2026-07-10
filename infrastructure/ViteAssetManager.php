@@ -7,65 +7,24 @@ use RuntimeException;
 
 final class ViteAssetManager
 {
-    // Responsabilité :
-    // Produit le HTML nécessaire pour le mode dev ou le mode prod."
-    // Ne connaît ni Smarty ni les contrôleurs.
-
-    /**
-     * Manifest Vite chargé une seule fois.
-     */
     private ?array $manifest = null;
 
     public function __construct(
-        /**
-         * Chemin absolu du module.
-         *
-         * Exemple :
-         * C:\wamp64\www\prestashop\modules\pscsession
-         */
         private readonly string $modulePath,
-
-        /**
-         * URI publique du module.
-         *
-         *
-         * Exemple :
-         * /modules/pscsession/
-         */
         private readonly string $moduleUri,
-
-        /**
-         * URL du serveur Vite.
-         */
-        private readonly string $devServer = 'http://localhost:5173',
+        private readonly string $devServer,
     ) {}
 
-    /**
-     * Génère le HTML permettant de charger une entry Vite.
-     *
-     * Exemple :
-     *
-     * render('src/sessionExpired/main.tsx')
-     */
     public function render(string $entry): string
     {
         return $this->isDevMode() ? $this->renderDev($entry) : $this->renderProd($entry);
     }
 
-    /**
-     * Détermine automatiquement si Vite est lancé.
-     *
-     * Si http://localhost:5173/@vite/client répond,
-     * on considère qu'on est en développement.
-     */
     private function isDevMode(): bool
     {
         return @file_get_contents($this->devServer . '/@vite/client') !== false;
     }
 
-    /**
-     * Génère les scripts nécessaires au mode développement.
-     */
     private function renderDev(string $entry): string
     {
         return <<<HTML
@@ -83,9 +42,6 @@ final class ViteAssetManager
         HTML;
     }
 
-    /**
-     * Génère les balises HTML à partir du manifest.
-     */
     private function renderProd(string $entry): string
     {
         $manifest = $this->manifest();
@@ -119,9 +75,6 @@ final class ViteAssetManager
         return $html;
     }
 
-    /**
-     * Charge le manifest Vite une seule fois.
-     */
     private function manifest(): array
     {
         if ($this->manifest !== null) {
