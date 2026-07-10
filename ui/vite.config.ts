@@ -23,7 +23,7 @@ export default defineConfig({
     build: {
         manifest: true,
         cssCodeSplit: false,
-        outDir: '../views/dist',
+        outDir: '../build/dist',
         emptyOutDir: true,
 
         rollupOptions: {
