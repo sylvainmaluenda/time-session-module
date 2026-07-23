@@ -57,7 +57,7 @@ final class ViteAssetManager
          */
         if (isset($manifest['style.css'])) {
             $html .= sprintf(
-                '<link rel="stylesheet" href="%sviews/dist/%s">' . PHP_EOL,
+                '<link rel="stylesheet" href="%sbuild/dist/%s">' . PHP_EOL,
                 $this->moduleUri,
                 $manifest['style.css']['file'],
             );
@@ -67,7 +67,7 @@ final class ViteAssetManager
          * Bundle JS
          */
         $html .= sprintf(
-            '<script type="module" src="%sviews/dist/%s"></script>',
+            '<script type="module" src="%sbuild/dist/%s"></script>',
             $this->moduleUri,
             $manifest[$entry]['file'],
         );
@@ -81,10 +81,10 @@ final class ViteAssetManager
             return $this->manifest;
         }
 
-        $manifestPath = $this->modulePath . '/views/dist/.vite/manifest.json';
+        $manifestPath = $this->modulePath . '/build/dist/.vite/manifest.json';
 
         if (!file_exists($manifestPath)) {
-            throw new RuntimeException('Manifest Vite introuvable.');
+            throw new RuntimeException(sprintf('Manifest Vite introuvable : %s', $manifestPath));
         }
 
         $this->manifest = json_decode(file_get_contents($manifestPath), true, 512, JSON_THROW_ON_ERROR);
